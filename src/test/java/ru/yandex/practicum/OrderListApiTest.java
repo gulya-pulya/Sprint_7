@@ -29,7 +29,7 @@ public class OrderListApiTest {
 
     @Test
     @DisplayName("Order list must be not empty")
-    public void OrderListMustBeNotEmpty() {
+    public void orderListMustBeNotEmpty() {
         String login = UUID.randomUUID().toString();
         String password = "Qwerty231";
         CourierCreateRequest courierCreateRequest = new CourierCreateRequest(login, password, "test");
