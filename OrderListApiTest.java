@@ -5,6 +5,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.dto.request.CourierCreateRequest;
@@ -22,21 +23,24 @@ import static io.restassured.RestAssured.given;
 
 public class OrderListApiTest {
 
+    private CourierCreateRequest courierCreateRequest;
+    private OrderCreateResponse orderCreateResponse;
+    private CourierLoginRequest courierLoginRequest;
+
     @Before
     public void setUp() {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
+        String login = UUID.randomUUID().toString();
+        String password = "Qwerty231";
+        this.courierLoginRequest = new CourierLoginRequest(login, password);
+        this.courierCreateRequest = new CourierCreateRequest(login, password, "test");
+        this.orderCreateResponse = OrderUtils.createPlainOrder();
     }
 
     @Test
     @DisplayName("Order list must be not empty")
     public void orderListMustBeNotEmpty() {
-        String login = UUID.randomUUID().toString();
-        String password = "Qwerty231";
-        CourierCreateRequest courierCreateRequest = new CourierCreateRequest(login, password, "test");
-        CourierLoginRequest courierLoginRequest = new CourierLoginRequest(login, password);
-
         CourierUtils.createCourier(courierCreateRequest);
-        OrderCreateResponse orderCreateResponse = OrderUtils.createPlainOrder();
 
         CourierLoginResponse courierLoginResponse = CourierUtils.loginCourier(courierLoginRequest);
 
@@ -45,7 +49,10 @@ public class OrderListApiTest {
 
         ValidatableResponse response = ordersList(courierLoginResponse);
         checkOrderListIsNotEmpty(response);
+    }
 
+    @After
+    public void clean() {
         CourierUtils.deleteCourier(courierCreateRequest);
         OrderUtils.cancelOrder(orderCreateResponse);
     }
